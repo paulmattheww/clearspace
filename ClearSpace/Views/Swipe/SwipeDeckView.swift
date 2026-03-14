@@ -11,6 +11,7 @@ struct SwipeDeckView: View {
     @State private var currentIndex = 0
     @State private var dragOffset: CGSize = .zero
     @State private var dragDirection: SwipeDirection? = nil
+    @State private var isSwiping = false
 
     private let swipeThreshold: CGFloat = 100
 
@@ -95,6 +96,9 @@ struct SwipeDeckView: View {
     // MARK: - Actions
 
     private func performSwipe(_ direction: SwipeDirection) {
+        guard !isSwiping else { return }
+        isSwiping = true
+
         let exitX: CGFloat = direction == .left ? -500 : 500
 
         withAnimation(.easeIn(duration: 0.2)) {
@@ -108,10 +112,12 @@ struct SwipeDeckView: View {
             HapticManager.swipeKeep()
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+        Task {
+            try? await Task.sleep(for: .milliseconds(250))
             dragOffset = .zero
             dragDirection = nil
             currentIndex += 1
+            isSwiping = false
         }
     }
 }

@@ -9,8 +9,15 @@ struct SwipeCardView: View {
 
     @State private var thumbnail: UIImage?
 
+    private static let dateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateStyle = .medium
+        f.timeStyle = .short
+        return f
+    }()
+
     var body: some View {
-        ZStack {
+        ZStack(alignment: .bottom) {
             // Photo
             RoundedRectangle(cornerRadius: 20)
                 .fill(Color(.systemGray6))
@@ -24,6 +31,35 @@ struct SwipeCardView: View {
                     }
                 }
                 .clipShape(RoundedRectangle(cornerRadius: 20))
+
+            // Metadata bar
+            HStack(spacing: 12) {
+                if let date = asset.creationDate {
+                    Label(Self.dateFormatter.string(from: date), systemImage: "calendar")
+                }
+
+                Spacer()
+
+                let size = PhotoManager.estimatedFileSize(for: asset)
+                if size > 0 {
+                    Label(
+                        ByteCountFormatter.string(fromByteCount: size, countStyle: .file),
+                        systemImage: "internaldrive"
+                    )
+                }
+
+                Text("\(asset.pixelWidth) x \(asset.pixelHeight)")
+            }
+            .font(.caption2)
+            .foregroundStyle(.white)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 8)
+            .frame(maxWidth: .infinity)
+            .background(.ultraThinMaterial.opacity(0.8))
+            .background(Color.black.opacity(0.4))
+            .clipShape(
+                .rect(bottomLeadingRadius: 20, bottomTrailingRadius: 20)
+            )
 
             // Swipe overlay
             if let direction {

@@ -12,6 +12,7 @@ struct ClearSpaceApp: App {
                 .environment(subscriptionManager)
                 .task {
                     await subscriptionManager.checkSubscriptionStatus()
+                    photoManager.startObservingLibrary()
                     await NotificationManager.scheduleMonthlyReview()
                 }
         }

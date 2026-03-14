@@ -17,8 +17,12 @@ struct MainTabView: View {
         }
         .tint(.blue)
         .task {
-            if photoManager.screenshots.isEmpty && !photoManager.isScanning {
-                await photoManager.scanLibrary()
+            // Try to restore cached results first for instant UI
+            if photoManager.totalJunkCount == 0 && !photoManager.isScanning {
+                let restored = photoManager.restoreCachedScan()
+                if !restored {
+                    await photoManager.scanLibrary()
+                }
             }
         }
     }

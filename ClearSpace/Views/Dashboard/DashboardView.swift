@@ -1,7 +1,9 @@
 import SwiftUI
+import Photos
 
 struct DashboardView: View {
     @Environment(PhotoManager.self) private var photoManager
+    @State private var showSettings = false
 
     var body: some View {
         NavigationStack {
@@ -13,42 +15,64 @@ struct DashboardView: View {
                     if photoManager.isScanning {
                         ScanningView(progress: photoManager.scanProgress, phase: photoManager.scanPhase)
                     } else {
-                        // Category cards
+                        // Category cards — only show categories with items
                         VStack(spacing: 12) {
-                            CategoryCard(
-                                category: .screenshots,
-                                count: photoManager.screenshots.count,
-                                assets: photoManager.screenshots
-                            )
+                            ForEach(categoryEntries, id: \.category) { entry in
+                                CategoryCard(
+                                    category: entry.category,
+                                    count: entry.count,
+                                    assets: entry.assets
+                                )
+                            }
 
-                            CategoryCard(
-                                category: .largeVideos,
-                                count: photoManager.largeVideos.count,
-                                assets: photoManager.largeVideos
-                            )
-
-                            // Placeholder cards for future phases
-                            CategoryCard(
-                                category: .blurryPhotos,
-                                count: photoManager.blurryPhotos.count,
-                                assets: photoManager.blurryPhotos
-                            )
-
-                            CategoryCard(
-                                category: .duplicates,
-                                count: photoManager.duplicates.count,
-                                assets: photoManager.duplicates
-                            )
+                            if categoryEntries.allSatisfy({ $0.count == 0 }) {
+                                allCleanView
+                            }
                         }
                     }
                 }
                 .padding()
             }
             .navigationTitle("ClearSpace")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showSettings = true
+                    } label: {
+                        Image(systemName: "gearshape")
+                    }
+                }
+            }
+            .sheet(isPresented: $showSettings) {
+                SettingsView()
+            }
             .refreshable {
                 await photoManager.scanLibrary()
             }
         }
+    }
+
+    private var categoryEntries: [(category: JunkCategory, count: Int, assets: [PHAsset])] {
+        let all: [(JunkCategory, Int, [PHAsset])] = [
+            (.screenshots, photoManager.screenshots.count, photoManager.screenshots),
+            (.largeVideos, photoManager.largeVideos.count, photoManager.largeVideos),
+            (.blurryPhotos, photoManager.blurryPhotos.count, photoManager.blurryPhotos),
+            (.duplicates, photoManager.duplicates.count, photoManager.duplicates),
+        ]
+        // Show categories with items first, then empty ones
+        return all.sorted { $0.1 > $1.1 }
+    }
+
+    private var allCleanView: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "checkmark.seal.fill")
+                .font(.system(size: 48))
+                .foregroundStyle(.green.gradient)
+            Text("Your library is clean!")
+                .font(.headline)
+                .foregroundStyle(.secondary)
+        }
+        .padding(.vertical, 32)
     }
 }
 
