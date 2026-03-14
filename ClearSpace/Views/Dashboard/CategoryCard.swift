@@ -2,16 +2,24 @@ import SwiftUI
 import Photos
 
 struct CategoryCard: View {
+    @Environment(SubscriptionManager.self) private var subscriptionManager
+
     let category: JunkCategory
     let count: Int
     let assets: [PHAsset]
 
+    @State private var showPaywall = false
+    @State private var navigateToSwipe = false
+
     var body: some View {
-        NavigationLink {
-            SwipeDeckView(category: category, assets: assets)
+        Button {
+            if subscriptionManager.isPro {
+                navigateToSwipe = true
+            } else {
+                showPaywall = true
+            }
         } label: {
             HStack(spacing: 16) {
-                // Icon
                 ZStack {
                     RoundedRectangle(cornerRadius: 12)
                         .fill(category.color.opacity(0.15))
@@ -22,7 +30,6 @@ struct CategoryCard: View {
                         .foregroundStyle(category.color)
                 }
 
-                // Info
                 VStack(alignment: .leading, spacing: 4) {
                     Text(category.rawValue)
                         .font(.headline)
@@ -35,7 +42,6 @@ struct CategoryCard: View {
 
                 Spacer()
 
-                // Count badge
                 if count > 0 {
                     Text("\(count)")
                         .font(.subheadline.bold().monospacedDigit())
@@ -48,13 +54,25 @@ struct CategoryCard: View {
                         .foregroundStyle(.green)
                 }
 
-                Image(systemName: "chevron.right")
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
+                if !subscriptionManager.isPro && count > 0 {
+                    Image(systemName: "lock.fill")
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                } else {
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                }
             }
             .padding(16)
             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
         }
         .disabled(count == 0)
+        .sheet(isPresented: $showPaywall) {
+            PaywallView()
+        }
+        .navigationDestination(isPresented: $navigateToSwipe) {
+            SwipeDeckView(category: category, assets: assets)
+        }
     }
 }
