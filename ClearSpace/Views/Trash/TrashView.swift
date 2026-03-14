@@ -3,10 +3,12 @@ import Photos
 
 struct TrashView: View {
     @Environment(PhotoManager.self) private var photoManager
+    @Environment(SubscriptionManager.self) private var subscriptionManager
     @State private var isDeleting = false
     @State private var showError = false
     @State private var errorMessage = ""
     @State private var showConfirmation = false
+    @State private var showPaywall = false
 
     var body: some View {
         NavigationStack {
@@ -83,7 +85,11 @@ struct TrashView: View {
 
             // THE BIG BUTTON — single batched deletion
             Button {
-                showConfirmation = true
+                if subscriptionManager.isPro {
+                    showConfirmation = true
+                } else {
+                    showPaywall = true
+                }
             } label: {
                 HStack(spacing: 10) {
                     if isDeleting {
@@ -110,6 +116,9 @@ struct TrashView: View {
             .font(.subheadline)
             .foregroundStyle(.secondary)
             .padding(.bottom, 24)
+        }
+        .sheet(isPresented: $showPaywall) {
+            PaywallView()
         }
     }
 
