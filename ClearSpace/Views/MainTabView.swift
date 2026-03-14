@@ -5,13 +5,15 @@ struct MainTabView: View {
 
     var body: some View {
         TabView {
-            Tab("Dashboard", systemImage: "gauge.with.dots.needle.33percent") {
-                DashboardView()
-            }
+            DashboardView()
+                .tabItem {
+                    Label("Dashboard", systemImage: "gauge.with.dots.needle.33percent")
+                }
 
-            Tab("Trash", systemImage: "trash.fill") {
-                TrashView()
-            }
+            TrashView()
+                .tabItem {
+                    Label("Trash", systemImage: "trash.fill")
+                }
         }
         .tint(.blue)
         .task {

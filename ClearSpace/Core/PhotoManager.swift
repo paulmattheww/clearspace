@@ -38,6 +38,10 @@ final class PhotoManager {
         screenshots.count + largeVideos.count + blurryPhotos.count + duplicates.count
     }
 
+    // MARK: - Analyzers
+
+    private let analyzer = PhotoAnalyzer()
+
     // MARK: - Image Loading
 
     private let cachingManager = PHCachingImageManager()
@@ -63,14 +67,24 @@ final class PhotoManager {
         // Reset buckets
         screenshots = []
         largeVideos = []
+        blurryPhotos = []
+        duplicates = []
         totalJunkBytes = 0
 
-        // Phase 1: Screenshots
+        // Phase 1: Screenshots (fast, metadata-only)
         await scanScreenshots()
-        scanProgress = 0.5
+        scanProgress = 0.25
 
-        // Phase 2: Large videos (>50MB)
+        // Phase 2: Large videos (fast, metadata-only)
         await scanLargeVideos()
+        scanProgress = 0.50
+
+        // Phase 3: Blurry photos (CoreImage analysis)
+        await scanBlurryPhotos()
+        scanProgress = 0.75
+
+        // Phase 4: Duplicates (Vision framework)
+        await scanDuplicates()
         scanProgress = 1.0
 
         isScanning = false
@@ -111,6 +125,43 @@ final class PhotoManager {
 
         largeVideos = batch
         await accumulateFileSize(for: batch)
+    }
+
+    private func scanBlurryPhotos() async {
+        // Analyze recent photos (last 500) for blur — keeps scan time reasonable
+        let options = PHFetchOptions()
+        options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+        options.fetchLimit = 500
+        options.predicate = NSPredicate(format: "mediaType == %d", PHAssetMediaType.image.rawValue)
+
+        let results = PHAsset.fetchAssets(with: .image, options: options)
+        var candidates: [PHAsset] = []
+        results.enumerateObjects { asset, _, _ in
+            // Skip screenshots — they're already categorized
+            if !asset.mediaSubtypes.contains(.photoScreenshot) {
+                candidates.append(asset)
+            }
+        }
+
+        blurryPhotos = await analyzer.detectBlurryPhotos(from: candidates)
+        await accumulateFileSize(for: blurryPhotos)
+    }
+
+    private func scanDuplicates() async {
+        // Analyze recent photos for duplicates
+        let options = PHFetchOptions()
+        options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+        options.fetchLimit = 500
+        options.predicate = NSPredicate(format: "mediaType == %d", PHAssetMediaType.image.rawValue)
+
+        let results = PHAsset.fetchAssets(with: .image, options: options)
+        var candidates: [PHAsset] = []
+        results.enumerateObjects { asset, _, _ in
+            candidates.append(asset)
+        }
+
+        duplicates = await analyzer.detectDuplicates(from: candidates)
+        await accumulateFileSize(for: duplicates)
     }
 
     private func accumulateFileSize(for assets: [PHAsset]) async {
