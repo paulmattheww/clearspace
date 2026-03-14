@@ -15,6 +15,7 @@ final class PhotoManager {
 
     var isScanning = false
     var scanProgress: Double = 0
+    var scanPhase: String = ""
 
     // MARK: - Junk Buckets
 
@@ -71,21 +72,22 @@ final class PhotoManager {
         duplicates = []
         totalJunkBytes = 0
 
-        // Phase 1: Screenshots (fast, metadata-only)
+        scanPhase = "Finding screenshots..."
         await scanScreenshots()
         scanProgress = 0.25
 
-        // Phase 2: Large videos (fast, metadata-only)
+        scanPhase = "Checking large videos..."
         await scanLargeVideos()
         scanProgress = 0.50
 
-        // Phase 3: Blurry photos (CoreImage analysis)
+        scanPhase = "Detecting blurry photos..."
         await scanBlurryPhotos()
         scanProgress = 0.75
 
-        // Phase 4: Duplicates (Vision framework)
+        scanPhase = "Finding duplicates..."
         await scanDuplicates()
         scanProgress = 1.0
+        scanPhase = ""
 
         isScanning = false
     }

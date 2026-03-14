@@ -119,6 +119,7 @@ struct TrashView: View {
         isDeleting = true
         do {
             try await photoManager.emptyTrash()
+            HapticManager.emptyTrash()
         } catch {
             errorMessage = error.localizedDescription
             showError = true

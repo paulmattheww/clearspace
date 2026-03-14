@@ -11,7 +11,7 @@ struct DashboardView: View {
                     StorageSummaryCard()
 
                     if photoManager.isScanning {
-                        ScanningView(progress: photoManager.scanProgress)
+                        ScanningView(progress: photoManager.scanProgress, phase: photoManager.scanPhase)
                     } else {
                         // Category cards
                         VStack(spacing: 12) {
@@ -56,6 +56,7 @@ struct DashboardView: View {
 
 struct ScanningView: View {
     let progress: Double
+    let phase: String
 
     var body: some View {
         VStack(spacing: 16) {
@@ -65,7 +66,7 @@ struct ScanningView: View {
             HStack {
                 Image(systemName: "magnifyingglass")
                     .foregroundStyle(.blue)
-                Text("Scanning your library...")
+                Text(phase.isEmpty ? "Scanning your library..." : phase)
                     .foregroundStyle(.secondary)
             }
             .font(.subheadline)

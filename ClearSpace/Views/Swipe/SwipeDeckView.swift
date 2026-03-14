@@ -103,6 +103,9 @@ struct SwipeDeckView: View {
 
         if direction == .left {
             photoManager.addToTrash(assets[currentIndex])
+            HapticManager.swipeTrash()
+        } else {
+            HapticManager.swipeKeep()
         }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
