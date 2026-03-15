@@ -14,6 +14,7 @@ struct MainTabView: View {
                 .tabItem {
                     Label("Trash", systemImage: "trash.fill")
                 }
+                .badge(photoManager.trashQueue.isEmpty ? 0 : photoManager.trashQueue.count)
         }
         .tint(.blue)
         .task {

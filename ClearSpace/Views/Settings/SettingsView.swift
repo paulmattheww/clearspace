@@ -5,6 +5,8 @@ struct SettingsView: View {
     @Environment(SubscriptionManager.self) private var subscriptionManager
     @Environment(\.dismiss) private var dismiss
 
+    @State private var showPaywall = false
+
     var body: some View {
         NavigationStack {
             List {
@@ -15,17 +17,19 @@ struct SettingsView: View {
                         Spacer()
                         Text(subscriptionManager.isPro ? "Pro" : "Free")
                             .foregroundStyle(subscriptionManager.isPro ? .green : .secondary)
+                            .fontWeight(.medium)
                     }
 
                     if !subscriptionManager.isPro {
                         Button("Upgrade to Pro") {
-                            // TODO: Show paywall
+                            showPaywall = true
                         }
                     }
 
                     Button("Restore Purchases") {
                         // TODO: RevenueCat restore
                     }
+                    .foregroundStyle(.secondary)
                 }
 
                 // App info
@@ -43,6 +47,9 @@ struct SettingsView: View {
                         Text("100% On-Device")
                             .foregroundStyle(.secondary)
                     }
+
+                    Link("Privacy Policy", destination: URL(string: "https://clearspace.app/privacy")!)
+                        .foregroundStyle(.blue)
                 }
 
                 // Debug section (only in debug builds)
@@ -52,8 +59,7 @@ struct SettingsView: View {
                     Toggle("Dev Mode (Pro)", isOn: $sm.isDevModeEnabled)
 
                     Button("Clear Scan Cache") {
-                        UserDefaults.standard.removeObject(forKey: "clearspace.scanCache")
-                        UserDefaults.standard.removeObject(forKey: "clearspace.totalJunkBytes")
+                        photoManager.invalidateScanCache()
                     }
 
                     Button("Force Rescan") {
@@ -77,6 +83,9 @@ struct SettingsView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }
                 }
+            }
+            .sheet(isPresented: $showPaywall) {
+                PaywallView()
             }
         }
     }

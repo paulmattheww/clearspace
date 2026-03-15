@@ -2,22 +2,15 @@ import SwiftUI
 import Photos
 
 struct CategoryCard: View {
-    @Environment(SubscriptionManager.self) private var subscriptionManager
-
     let category: JunkCategory
     let count: Int
     let assets: [PHAsset]
 
-    @State private var showPaywall = false
     @State private var navigateToSwipe = false
 
     var body: some View {
         Button {
-            if subscriptionManager.isPro {
-                navigateToSwipe = true
-            } else {
-                showPaywall = true
-            }
+            navigateToSwipe = true
         } label: {
             HStack(spacing: 16) {
                 ZStack {
@@ -49,28 +42,20 @@ struct CategoryCard: View {
                         .padding(.vertical, 6)
                         .background(category.color.opacity(0.15), in: Capsule())
                         .foregroundStyle(category.color)
+                        .contentTransition(.numericText())
                 } else {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundStyle(.green)
                 }
 
-                if !subscriptionManager.isPro && count > 0 {
-                    Image(systemName: "lock.fill")
-                        .font(.caption)
-                        .foregroundStyle(.orange)
-                } else {
-                    Image(systemName: "chevron.right")
-                        .font(.caption)
-                        .foregroundStyle(.tertiary)
-                }
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
             }
             .padding(16)
             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
         }
         .disabled(count == 0)
-        .sheet(isPresented: $showPaywall) {
-            PaywallView()
-        }
         .navigationDestination(isPresented: $navigateToSwipe) {
             SwipeDeckView(category: category, assets: assets)
         }

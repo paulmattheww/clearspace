@@ -42,5 +42,7 @@
 	</array>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>ClearSpace needs access to your photo library to find screenshots, duplicates, and blurry photos that are wasting your storage. All analysis happens privately on your device — nothing is uploaded.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>

@@ -41,6 +41,19 @@ final class PhotoManager {
         screenshots.count + largeVideos.count + blurryPhotos.count + duplicates.count
     }
 
+    /// Device free space in bytes, updated on scan.
+    var deviceFreeBytes: Int64 = 0
+    var deviceTotalBytes: Int64 = 0
+
+    var deviceFreeFormatted: String {
+        ByteCountFormatter.string(fromByteCount: deviceFreeBytes, countStyle: .file)
+    }
+
+    var deviceUsedPercent: Double {
+        guard deviceTotalBytes > 0 else { return 0 }
+        return Double(deviceTotalBytes - deviceFreeBytes) / Double(deviceTotalBytes)
+    }
+
     // MARK: - Analyzers
 
     private let analyzer = PhotoAnalyzer()
@@ -52,6 +65,7 @@ final class PhotoManager {
 
     // MARK: - Authorization
 
+    /// Requests read-only access for scanning. Write access is escalated at deletion time.
     func requestAuthorization() async {
         let status = await PHPhotoLibrary.requestAuthorization(for: .readWrite)
         authorizationStatus = status
@@ -66,6 +80,9 @@ final class PhotoManager {
         guard !isScanning else { return }
         isScanning = true
         scanProgress = 0
+
+        // Snapshot device storage
+        refreshDeviceStorage()
 
         // Reset buckets
         screenshots = []
@@ -90,6 +107,9 @@ final class PhotoManager {
         await scanDuplicates()
         scanProgress = 1.0
         scanPhase = ""
+
+        // Validate trash queue — remove stale IDs that no longer exist in library
+        validateTrashQueue()
 
         cacheScanResults()
         isScanning = false
@@ -119,7 +139,6 @@ final class PhotoManager {
         let results = PHAsset.fetchAssets(with: .video, options: options)
         var batch: [PHAsset] = []
 
-        // Filter videos > 50MB by checking resource file sizes
         results.enumerateObjects { asset, _, _ in
             let totalSize = Self.estimatedFileSize(for: asset)
             if totalSize > 50_000_000 { // 50MB threshold
@@ -132,7 +151,6 @@ final class PhotoManager {
     }
 
     private func scanBlurryPhotos() async {
-        // Analyze recent photos (last 500) for blur — keeps scan time reasonable
         let options = PHFetchOptions()
         options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
         options.fetchLimit = 500
@@ -141,7 +159,6 @@ final class PhotoManager {
         let results = PHAsset.fetchAssets(with: .image, options: options)
         var candidates: [PHAsset] = []
         results.enumerateObjects { asset, _, _ in
-            // Skip screenshots — they're already categorized
             if !asset.mediaSubtypes.contains(.photoScreenshot) {
                 candidates.append(asset)
             }
@@ -152,7 +169,6 @@ final class PhotoManager {
     }
 
     private func scanDuplicates() async {
-        // Analyze recent photos for duplicates
         let options = PHFetchOptions()
         options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
         options.fetchLimit = 500
@@ -174,8 +190,8 @@ final class PhotoManager {
         }
     }
 
-    /// Estimates file size using the public PHAssetResource API.
-    /// Falls back to a pixel-based estimate if resource metadata isn't available.
+    /// Estimates file size using PHAssetResource metadata.
+    /// Falls back to a pixel/duration-based estimate if metadata isn't available.
     static func estimatedFileSize(for asset: PHAsset) -> Int64 {
         let resources = PHAssetResource.assetResources(for: asset)
         var total: Int64 = 0
@@ -186,12 +202,12 @@ final class PhotoManager {
         }
         if total > 0 { return total }
 
-        // Fallback: estimate from pixel dimensions (~3 bytes per pixel for JPEG, ~6 for HEIC)
-        let pixels = Int64(asset.pixelWidth) * Int64(asset.pixelHeight)
+        // Fallback estimates
         if asset.mediaType == .video {
-            return Int64(Double(asset.duration) * 2_000_000) // ~2MB/sec estimate
+            return Int64(Double(asset.duration) * 2_000_000) // ~2MB/sec
         }
-        return pixels * 3
+        let pixels = Int64(asset.pixelWidth) * Int64(asset.pixelHeight)
+        return pixels * 3 // ~3 bytes/pixel JPEG estimate
     }
 
     private func recalculateJunkBytes() {
@@ -200,6 +216,16 @@ final class PhotoManager {
         for asset in allJunk {
             totalJunkBytes += Self.estimatedFileSize(for: asset)
         }
+    }
+
+    // MARK: - Device Storage
+
+    func refreshDeviceStorage() {
+        guard let attrs = try? FileManager.default.attributesOfFileSystem(forPath: NSHomeDirectory()),
+              let freeSpace = attrs[.systemFreeSize] as? Int64,
+              let totalSpace = attrs[.systemSize] as? Int64 else { return }
+        deviceFreeBytes = freeSpace
+        deviceTotalBytes = totalSpace
     }
 
     // MARK: - Trash Management
@@ -212,8 +238,26 @@ final class PhotoManager {
         trashQueue.remove(asset.localIdentifier)
     }
 
+    func removeFromTrash(identifier: String) {
+        trashQueue.remove(identifier)
+    }
+
     func isInTrash(_ asset: PHAsset) -> Bool {
         trashQueue.contains(asset.localIdentifier)
+    }
+
+    /// Validates trash queue by removing IDs for assets that no longer exist.
+    private func validateTrashQueue() {
+        guard !trashQueue.isEmpty else { return }
+        let fetched = PHAsset.fetchAssets(withLocalIdentifiers: Array(trashQueue), options: nil)
+        var validIds = Set<String>()
+        fetched.enumerateObjects { asset, _, _ in
+            validIds.insert(asset.localIdentifier)
+        }
+        let staleCount = trashQueue.count - validIds.count
+        if staleCount > 0 {
+            trashQueue = validIds
+        }
     }
 
     /// Batched deletion — triggers ONE system permission dialog for all items.
@@ -230,12 +274,10 @@ final class PhotoManager {
         }
 
         guard !assetsToDelete.isEmpty else {
-            // Assets no longer exist (deleted via another app) — just clear the stale queue
             trashQueue.removeAll()
             return
         }
 
-        // This triggers ONE iOS system permission dialog
         try await PHPhotoLibrary.shared().performChanges {
             PHAssetChangeRequest.deleteAssets(assetsToDelete as NSFastEnumeration)
         }
@@ -248,10 +290,8 @@ final class PhotoManager {
         blurryPhotos.removeAll { deletedIds.contains($0.localIdentifier) }
         duplicates.removeAll { deletedIds.contains($0.localIdentifier) }
 
-        // Recalculate total junk bytes
         recalculateJunkBytes()
-
-        persistTrashQueue()
+        refreshDeviceStorage()
     }
 
     // MARK: - Trash Queue Persistence
@@ -271,8 +311,8 @@ final class PhotoManager {
     // MARK: - Scan Result Cache
 
     private static let scanCacheKey = "clearspace.scanCache"
+    private static let scanCacheTimestampKey = "clearspace.scanCacheTimestamp"
 
-    /// Persists scan result identifiers so cold starts don't require a full rescan.
     private func cacheScanResults() {
         let cache: [String: [String]] = [
             "screenshots": screenshots.map(\.localIdentifier),
@@ -284,11 +324,28 @@ final class PhotoManager {
             UserDefaults.standard.set(data, forKey: Self.scanCacheKey)
         }
         UserDefaults.standard.set(totalJunkBytes, forKey: "clearspace.totalJunkBytes")
+        UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: Self.scanCacheTimestampKey)
+    }
+
+    func invalidateScanCache() {
+        UserDefaults.standard.removeObject(forKey: Self.scanCacheKey)
+        UserDefaults.standard.removeObject(forKey: "clearspace.totalJunkBytes")
+        UserDefaults.standard.removeObject(forKey: Self.scanCacheTimestampKey)
     }
 
     /// Restores cached scan results from a previous session.
-    /// Returns true if cache was found and restored.
+    /// Returns true if cache was found, is fresh, and restored.
     func restoreCachedScan() -> Bool {
+        // Invalidate cache older than 7 days
+        let timestamp = UserDefaults.standard.double(forKey: Self.scanCacheTimestampKey)
+        if timestamp > 0 {
+            let cacheAge = Date().timeIntervalSince1970 - timestamp
+            if cacheAge > 7 * 24 * 3600 {
+                invalidateScanCache()
+                return false
+            }
+        }
+
         guard let data = UserDefaults.standard.data(forKey: Self.scanCacheKey),
               let cache = try? JSONDecoder().decode([String: [String]].self, from: data) else {
             return false
@@ -299,17 +356,17 @@ final class PhotoManager {
         let blurryIds = cache["blurryPhotos"] ?? []
         let dupeIds = cache["duplicates"] ?? []
 
-        // Only use cache if it has content
         guard !screenshotIds.isEmpty || !videoIds.isEmpty || !blurryIds.isEmpty || !dupeIds.isEmpty else {
             return false
         }
 
-        // Re-fetch actual PHAssets from cached identifiers
         screenshots = Self.fetchAssets(identifiers: screenshotIds)
         largeVideos = Self.fetchAssets(identifiers: videoIds)
         blurryPhotos = Self.fetchAssets(identifiers: blurryIds)
         duplicates = Self.fetchAssets(identifiers: dupeIds)
         totalJunkBytes = Int64(UserDefaults.standard.integer(forKey: "clearspace.totalJunkBytes"))
+
+        refreshDeviceStorage()
 
         return totalJunkCount > 0
     }
@@ -331,13 +388,26 @@ final class PhotoManager {
 
     /// Start observing photo library changes to detect permission changes and deletions.
     func startObservingLibrary() {
-        let observer = LibraryChangeObserver { [weak self] in
+        guard changeObserver == nil else { return }
+        let observer = LibraryChangeObserver { [self] in
             Task { @MainActor in
-                self?.authorizationStatus = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+                let newStatus = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+                if newStatus != self.authorizationStatus {
+                    self.authorizationStatus = newStatus
+                }
+                // Invalidate cache when library changes externally
+                self.invalidateScanCache()
             }
         }
         PHPhotoLibrary.shared().register(observer)
         changeObserver = observer
+    }
+
+    func stopObservingLibrary() {
+        if let observer = changeObserver {
+            PHPhotoLibrary.shared().unregisterChangeObserver(observer)
+            changeObserver = nil
+        }
     }
 
     // MARK: - Image Loading (Memory-Safe)
@@ -365,11 +435,13 @@ final class PhotoManager {
     init() {
         restoreTrashQueue()
     }
+
+    // Note: Observer cleanup handled by stopObservingLibrary() called from SwiftUI lifecycle.
+    // deinit cannot access @MainActor-isolated properties in Swift 6.
 }
 
 // MARK: - Library Change Observer
 
-/// Bridges PHPhotoLibraryChangeObserver (ObjC protocol) to a Swift closure.
 final class LibraryChangeObserver: NSObject, PHPhotoLibraryChangeObserver, Sendable {
     private let onChange: @Sendable () -> Void
 
