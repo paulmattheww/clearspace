@@ -3,13 +3,18 @@ import Photos
 
 struct TrashView: View {
     @Environment(PhotoManager.self) private var photoManager
+    @Environment(StreakManager.self) private var streakManager
     @State private var isDeleting = false
     @State private var showError = false
     @State private var errorMessage = ""
     @State private var showConfirmation = false
-    @State private var showShareSheet = false
     @State private var deletedCount = 0
     @State private var deletedBytes: Int64 = 0
+
+    private var shareText: String {
+        let sizeStr = ByteCountFormatter.string(fromByteCount: deletedBytes, countStyle: .file)
+        return "I just cleaned \(deletedCount) junk photos and freed up \(sizeStr) on my iPhone with ClearSpace!"
+    }
 
     var body: some View {
         NavigationStack {
@@ -38,9 +43,6 @@ struct TrashView: View {
                 }
             } message: {
                 Text("This will move these items to your Recently Deleted album. You can recover them within 30 days.")
-            }
-            .sheet(isPresented: $showShareSheet) {
-                ShareCleanupView(itemCount: deletedCount, bytesFreed: deletedBytes)
             }
         }
     }
@@ -83,9 +85,8 @@ struct TrashView: View {
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.secondary)
 
-            Button {
-                showShareSheet = true
-            } label: {
+            // ShareLink directly in the view — not wrapped in a sheet
+            ShareLink(item: shareText) {
                 Label("Share Your Results", systemImage: "square.and.arrow.up")
                     .font(.headline)
                     .frame(maxWidth: .infinity)
@@ -126,7 +127,6 @@ struct TrashView: View {
 
             Spacer()
 
-            // THE BIG BUTTON — single batched deletion, available to all users
             Button {
                 showConfirmation = true
             } label: {
@@ -163,7 +163,6 @@ struct TrashView: View {
 
     private func performDeletion() async {
         let count = photoManager.trashQueue.count
-        // Estimate bytes before deletion
         let identifiers = Array(photoManager.trashQueue)
         let fetched = PHAsset.fetchAssets(withLocalIdentifiers: identifiers, options: nil)
         var bytes: Int64 = 0
@@ -175,6 +174,7 @@ struct TrashView: View {
         do {
             try await photoManager.emptyTrash()
             HapticManager.emptyTrash()
+            streakManager.recordCleanup(itemCount: count)
             deletedCount = count
             deletedBytes = bytes
         } catch {
@@ -182,23 +182,5 @@ struct TrashView: View {
             showError = true
         }
         isDeleting = false
-    }
-}
-
-// MARK: - Share Cleanup Results
-
-struct ShareCleanupView: View {
-    let itemCount: Int
-    let bytesFreed: Int64
-
-    private var shareText: String {
-        let sizeStr = ByteCountFormatter.string(fromByteCount: bytesFreed, countStyle: .file)
-        return "I just cleaned \(itemCount) junk photos and freed up \(sizeStr) on my iPhone with ClearSpace!"
-    }
-
-    var body: some View {
-        ShareLink(item: shareText) {
-            Label("Share", systemImage: "square.and.arrow.up")
-        }
     }
 }

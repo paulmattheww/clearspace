@@ -3,12 +3,18 @@ import Photos
 
 struct DashboardView: View {
     @Environment(PhotoManager.self) private var photoManager
+    @Environment(StreakManager.self) private var streakManager
     @State private var showSettings = false
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
+                    // Streak banner (only show if user has cleaned before)
+                    if streakManager.totalCleanups > 0 {
+                        StreakBanner(streak: streakManager.currentStreak, totalCleaned: streakManager.totalItemsCleaned)
+                    }
+
                     // Hero storage card
                     StorageSummaryCard()
 
@@ -87,6 +93,42 @@ struct DashboardView: View {
                 .foregroundStyle(.secondary)
         }
         .padding(.vertical, 32)
+    }
+}
+
+// MARK: - Streak Banner
+
+struct StreakBanner: View {
+    let streak: Int
+    let totalCleaned: Int
+
+    var body: some View {
+        HStack(spacing: 16) {
+            // Streak flame
+            VStack(spacing: 2) {
+                Image(systemName: streak > 0 ? "flame.fill" : "flame")
+                    .font(.title2)
+                    .foregroundStyle(streak > 0 ? Color.orange : Color.secondary.opacity(0.5))
+                Text("\(streak)")
+                    .font(.caption.bold().monospacedDigit())
+                    .foregroundStyle(streak > 0 ? .orange : .secondary)
+            }
+            .frame(width: 44)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(streak > 0 ? "\(streak)-day streak!" : "Start a streak!")
+                    .font(.subheadline.bold())
+                Text("\(totalCleaned) photos cleaned all time")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+        }
+        .padding(14)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(streak) day cleanup streak. \(totalCleaned) photos cleaned total.")
     }
 }
 

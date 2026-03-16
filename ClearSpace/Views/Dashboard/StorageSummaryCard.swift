@@ -20,6 +20,7 @@ struct StorageSummaryCard: View {
                 StorageGauge(
                     usedPercent: photoManager.deviceUsedPercent,
                     reclaimableBytes: photoManager.totalJunkBytes,
+                    totalBytes: photoManager.deviceTotalBytes,
                     freeFormatted: photoManager.deviceFreeFormatted
                 )
             }
@@ -52,33 +53,35 @@ struct StorageSummaryCard: View {
 struct StorageGauge: View {
     let usedPercent: Double
     let reclaimableBytes: Int64
+    let totalBytes: Int64
     let freeFormatted: String
 
     private var reclaimablePercent: Double {
-        // Approximate what percentage of total storage is reclaimable
-        guard usedPercent > 0 else { return 0 }
-        return min(Double(reclaimableBytes) / Double(reclaimableBytes) * (1.0 - usedPercent + usedPercent * 0.1), usedPercent * 0.3)
+        guard totalBytes > 0, reclaimableBytes > 0 else { return 0 }
+        let percent = Double(reclaimableBytes) / Double(totalBytes)
+        // Clamp: don't show reclaimable as larger than used
+        return min(percent, usedPercent)
     }
 
     var body: some View {
         VStack(spacing: 8) {
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
-                    // Background
+                    // Background (total capacity)
                     RoundedRectangle(cornerRadius: 6)
                         .fill(Color(.systemGray5))
 
                     // Used space
                     RoundedRectangle(cornerRadius: 6)
                         .fill(usedPercent > 0.85 ? Color.red.opacity(0.7) : Color.blue.opacity(0.5))
-                        .frame(width: geo.size.width * usedPercent)
+                        .frame(width: geo.size.width * min(usedPercent, 1.0))
 
-                    // Reclaimable overlay (striped section at the end of used)
-                    if reclaimableBytes > 0 {
+                    // Reclaimable overlay (green section at the end of used bar)
+                    if reclaimablePercent > 0 {
                         RoundedRectangle(cornerRadius: 6)
                             .fill(Color.green.opacity(0.6))
-                            .frame(width: geo.size.width * reclaimablePercent)
-                            .offset(x: geo.size.width * (usedPercent - reclaimablePercent))
+                            .frame(width: max(geo.size.width * reclaimablePercent, 4))
+                            .offset(x: geo.size.width * (min(usedPercent, 1.0) - reclaimablePercent))
                     }
                 }
             }
@@ -104,6 +107,8 @@ struct StorageGauge: View {
             }
         }
         .padding(.horizontal, 4)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(freeFormatted) free storage. \(ByteCountFormatter.string(fromByteCount: reclaimableBytes, countStyle: .file)) reclaimable.")
     }
 }
 
