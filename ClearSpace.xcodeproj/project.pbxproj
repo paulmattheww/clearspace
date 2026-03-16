@@ -1,0 +1,460 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		09118E91883D20A2D518FB3B /* ClearSpaceApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93F547C764B20C4EC357B4C9 /* ClearSpaceApp.swift */; };
+		09CA01C05384BC65C6383460 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7699515A82909F50CC4BEE4C /* ContentView.swift */; };
+		1610EF36CB9D55F179F6C59A /* SubscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B5EAE52C63A6520DEC66E5D /* SubscriptionManager.swift */; };
+		1DCCAA0C25D99117C26FC643 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCCC00162B41D2E9487CB62 /* NotificationManager.swift */; };
+		1F58912DD24C33F3A3FFFE03 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F71B7C5F393CCB1A05374ED5 /* Assets.xcassets */; };
+		2653DDD397EBE50E6A6D415F /* JunkCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A28FA1799C06C0C39CB1DC /* JunkCategory.swift */; };
+		2E3466C3A7B8BE2040E15CD3 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A72E4FE6205AA7247C5CDCD6 /* DashboardView.swift */; };
+		2F08FBAC46AFF48AE6FDA0E4 /* SwipeCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23AFE97BB3AA4A8103BD9A44 /* SwipeCardView.swift */; };
+		371000A825993F369914C885 /* PermissionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCFA42E80E322773E5DD7C56 /* PermissionView.swift */; };
+		3949AC7C4C668624B4012978 /* TrashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39E346D24F13A5D65CC5EA2D /* TrashView.swift */; };
+		5A28FB140C92A3D1C9A4A341 /* SwipeDeckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C20F0156C94D850D980BA74 /* SwipeDeckView.swift */; };
+		72F85EBB7C954C75DC64CE72 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2A6BAE15CDB2BCCB81FA134 /* MainTabView.swift */; };
+		88903DB78CE504F9E3CC0B45 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A93526BD3D71C817C231909 /* SettingsView.swift */; };
+		8BEF3023C10805CFEDFA8F52 /* PhotoAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE01FBB74B29DFD26E68CC15 /* PhotoAnalyzer.swift */; };
+		925866B95DB066AE90BC3783 /* HapticManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E37590102A58B35DB1D30F3 /* HapticManager.swift */; };
+		AA50E5E85314E8F14D0865DB /* StorageSummaryCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90E7EA7BD281ED126C0A4A03 /* StorageSummaryCard.swift */; };
+		B587C901457FB16CB91FACDF /* CategoryCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186A17462C8BCC8F78F8E97F /* CategoryCard.swift */; };
+		C686C2C6D4A2C43F141D745E /* PhotoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB57C9CC23630D0C83AF3CC4 /* PhotoManager.swift */; };
+		DD75675ED8C4687F79BD1993 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A7B8591284DF9944A03BFB3 /* PaywallView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		01A28FA1799C06C0C39CB1DC /* JunkCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JunkCategory.swift; sourceTree = "<group>"; };
+		0B5EAE52C63A6520DEC66E5D /* SubscriptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionManager.swift; sourceTree = "<group>"; };
+		186A17462C8BCC8F78F8E97F /* CategoryCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCard.swift; sourceTree = "<group>"; };
+		1A93526BD3D71C817C231909 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		1C8AE659B88D0866A3156525 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		23AFE97BB3AA4A8103BD9A44 /* SwipeCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeCardView.swift; sourceTree = "<group>"; };
+		292F7F81C897098658E9FF13 /* ClearSpace.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ClearSpace.entitlements; sourceTree = "<group>"; };
+		2A7B8591284DF9944A03BFB3 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
+		2DCCC00162B41D2E9487CB62 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		39E346D24F13A5D65CC5EA2D /* TrashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrashView.swift; sourceTree = "<group>"; };
+		5C20F0156C94D850D980BA74 /* SwipeDeckView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeDeckView.swift; sourceTree = "<group>"; };
+		6E37590102A58B35DB1D30F3 /* HapticManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticManager.swift; sourceTree = "<group>"; };
+		7699515A82909F50CC4BEE4C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		90E7EA7BD281ED126C0A4A03 /* StorageSummaryCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageSummaryCard.swift; sourceTree = "<group>"; };
+		93F547C764B20C4EC357B4C9 /* ClearSpaceApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearSpaceApp.swift; sourceTree = "<group>"; };
+		A72E4FE6205AA7247C5CDCD6 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		B2A6BAE15CDB2BCCB81FA134 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		CE01FBB74B29DFD26E68CC15 /* PhotoAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoAnalyzer.swift; sourceTree = "<group>"; };
+		EB57C9CC23630D0C83AF3CC4 /* PhotoManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoManager.swift; sourceTree = "<group>"; };
+		F2A1F059CB60400B78486AFC /* ClearSpace.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ClearSpace.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F71B7C5F393CCB1A05374ED5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		FCFA42E80E322773E5DD7C56 /* PermissionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		01AD36A9ABAF5DBE7FF70A4D /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				01A28FA1799C06C0C39CB1DC /* JunkCategory.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		05DF3449453D885175BA32BF /* App */ = {
+			isa = PBXGroup;
+			children = (
+				93F547C764B20C4EC357B4C9 /* ClearSpaceApp.swift */,
+				7699515A82909F50CC4BEE4C /* ContentView.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		11A3CA9ADDA2FC6C430A229C /* Trash */ = {
+			isa = PBXGroup;
+			children = (
+				39E346D24F13A5D65CC5EA2D /* TrashView.swift */,
+			);
+			path = Trash;
+			sourceTree = "<group>";
+		};
+		19AC3DA3A754D3C08B0F1703 /* Paywall */ = {
+			isa = PBXGroup;
+			children = (
+				2A7B8591284DF9944A03BFB3 /* PaywallView.swift */,
+			);
+			path = Paywall;
+			sourceTree = "<group>";
+		};
+		19E58748C9FA0C16B6F948F3 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F2A1F059CB60400B78486AFC /* ClearSpace.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		271AB2886DFCEC981A04A90D = {
+			isa = PBXGroup;
+			children = (
+				64E71B2EF896FDD5877060F7 /* ClearSpace */,
+				19E58748C9FA0C16B6F948F3 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		3389B21955158E8CC822AAF3 /* Dashboard */ = {
+			isa = PBXGroup;
+			children = (
+				186A17462C8BCC8F78F8E97F /* CategoryCard.swift */,
+				A72E4FE6205AA7247C5CDCD6 /* DashboardView.swift */,
+				90E7EA7BD281ED126C0A4A03 /* StorageSummaryCard.swift */,
+			);
+			path = Dashboard;
+			sourceTree = "<group>";
+		};
+		3C21FA55E72B8CF3C6A40542 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				6E37590102A58B35DB1D30F3 /* HapticManager.swift */,
+				2DCCC00162B41D2E9487CB62 /* NotificationManager.swift */,
+				CE01FBB74B29DFD26E68CC15 /* PhotoAnalyzer.swift */,
+				EB57C9CC23630D0C83AF3CC4 /* PhotoManager.swift */,
+				0B5EAE52C63A6520DEC66E5D /* SubscriptionManager.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		64E71B2EF896FDD5877060F7 /* ClearSpace */ = {
+			isa = PBXGroup;
+			children = (
+				F71B7C5F393CCB1A05374ED5 /* Assets.xcassets */,
+				292F7F81C897098658E9FF13 /* ClearSpace.entitlements */,
+				1C8AE659B88D0866A3156525 /* Info.plist */,
+				05DF3449453D885175BA32BF /* App */,
+				3C21FA55E72B8CF3C6A40542 /* Core */,
+				01AD36A9ABAF5DBE7FF70A4D /* Models */,
+				E64B29E9A9E0056D95D7BC10 /* Views */,
+			);
+			path = ClearSpace;
+			sourceTree = "<group>";
+		};
+		9ABC9EB175F3A108758F9A3D /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				1A93526BD3D71C817C231909 /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		C79BB60D1E928AF89451E2D2 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				FCFA42E80E322773E5DD7C56 /* PermissionView.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		E64B29E9A9E0056D95D7BC10 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				B2A6BAE15CDB2BCCB81FA134 /* MainTabView.swift */,
+				3389B21955158E8CC822AAF3 /* Dashboard */,
+				C79BB60D1E928AF89451E2D2 /* Onboarding */,
+				19AC3DA3A754D3C08B0F1703 /* Paywall */,
+				9ABC9EB175F3A108758F9A3D /* Settings */,
+				F3F974842471BFED9D9948D4 /* Swipe */,
+				11A3CA9ADDA2FC6C430A229C /* Trash */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		F3F974842471BFED9D9948D4 /* Swipe */ = {
+			isa = PBXGroup;
+			children = (
+				23AFE97BB3AA4A8103BD9A44 /* SwipeCardView.swift */,
+				5C20F0156C94D850D980BA74 /* SwipeDeckView.swift */,
+			);
+			path = Swipe;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		5F1E23A879FFFA6B6D805281 /* ClearSpace */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F80C00DCF4F437F41DC6F16E /* Build configuration list for PBXNativeTarget "ClearSpace" */;
+			buildPhases = (
+				17E6B4C942CC7A807649F930 /* Sources */,
+				CA580B41266F33FB4875F7B5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ClearSpace;
+			packageProductDependencies = (
+			);
+			productName = ClearSpace;
+			productReference = F2A1F059CB60400B78486AFC /* ClearSpace.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E531E3EDFF762AF07B602926 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					5F1E23A879FFFA6B6D805281 = {
+						DevelopmentTeam = "";
+					};
+				};
+			};
+			buildConfigurationList = 9E18D32B95B85955CF423FA8 /* Build configuration list for PBXProject "ClearSpace" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 271AB2886DFCEC981A04A90D;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 19E58748C9FA0C16B6F948F3 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				5F1E23A879FFFA6B6D805281 /* ClearSpace */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		CA580B41266F33FB4875F7B5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1F58912DD24C33F3A3FFFE03 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		17E6B4C942CC7A807649F930 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B587C901457FB16CB91FACDF /* CategoryCard.swift in Sources */,
+				09118E91883D20A2D518FB3B /* ClearSpaceApp.swift in Sources */,
+				09CA01C05384BC65C6383460 /* ContentView.swift in Sources */,
+				2E3466C3A7B8BE2040E15CD3 /* DashboardView.swift in Sources */,
+				925866B95DB066AE90BC3783 /* HapticManager.swift in Sources */,
+				2653DDD397EBE50E6A6D415F /* JunkCategory.swift in Sources */,
+				72F85EBB7C954C75DC64CE72 /* MainTabView.swift in Sources */,
+				1DCCAA0C25D99117C26FC643 /* NotificationManager.swift in Sources */,
+				DD75675ED8C4687F79BD1993 /* PaywallView.swift in Sources */,
+				371000A825993F369914C885 /* PermissionView.swift in Sources */,
+				8BEF3023C10805CFEDFA8F52 /* PhotoAnalyzer.swift in Sources */,
+				C686C2C6D4A2C43F141D745E /* PhotoManager.swift in Sources */,
+				88903DB78CE504F9E3CC0B45 /* SettingsView.swift in Sources */,
+				AA50E5E85314E8F14D0865DB /* StorageSummaryCard.swift in Sources */,
+				1610EF36CB9D55F179F6C59A /* SubscriptionManager.swift in Sources */,
+				2F08FBAC46AFF48AE6FDA0E4 /* SwipeCardView.swift in Sources */,
+				5A28FB140C92A3D1C9A4A341 /* SwipeDeckView.swift in Sources */,
+				3949AC7C4C668624B4012978 /* TrashView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		92DEB468F164DD1B70741C25 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = ClearSpace/ClearSpace.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = ClearSpace/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.clearspace.app;
+				SDKROOT = iphoneos;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A28829ECDBEC6566D12B19D0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		C276AC18AEA70DE0E057382E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = ClearSpace/ClearSpace.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = ClearSpace/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.clearspace.app;
+				SDKROOT = iphoneos;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		D403BF7BC945C360D2E6FE37 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		9E18D32B95B85955CF423FA8 /* Build configuration list for PBXProject "ClearSpace" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D403BF7BC945C360D2E6FE37 /* Debug */,
+				A28829ECDBEC6566D12B19D0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		F80C00DCF4F437F41DC6F16E /* Build configuration list for PBXNativeTarget "ClearSpace" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				92DEB468F164DD1B70741C25 /* Debug */,
+				C276AC18AEA70DE0E057382E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E531E3EDFF762AF07B602926 /* Project object */;
+}
