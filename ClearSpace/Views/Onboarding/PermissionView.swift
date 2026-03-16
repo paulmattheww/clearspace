@@ -65,8 +65,11 @@ struct PermissionView: View {
                 .multilineTextAlignment(.center)
                 .padding(.bottom, 24)
         }
+        .accessibilityElement(children: .contain)
     }
 }
+
+// MARK: - FeatureRow moved here for co-location
 
 struct FeatureRow: View {
     let icon: String

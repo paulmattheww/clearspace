@@ -15,7 +15,20 @@ struct DashboardView: View {
                     if photoManager.isScanning {
                         ScanningView(progress: photoManager.scanProgress, phase: photoManager.scanPhase)
                     } else {
-                        // Category cards — only show categories with items
+                        // Last scanned info
+                        if let lastScan = photoManager.lastScanDate {
+                            HStack {
+                                Image(systemName: "clock")
+                                    .foregroundStyle(.tertiary)
+                                Text("Scanned \(lastScan, style: .relative) ago")
+                                    .font(.caption)
+                                    .foregroundStyle(.tertiary)
+                                Spacer()
+                            }
+                            .padding(.horizontal, 4)
+                        }
+
+                        // Category cards — sorted by item count
                         VStack(spacing: 12) {
                             ForEach(categoryEntries, id: \.category) { entry in
                                 CategoryCard(
@@ -41,6 +54,7 @@ struct DashboardView: View {
                     } label: {
                         Image(systemName: "gearshape")
                     }
+                    .accessibilityLabel("Settings")
                 }
             }
             .sheet(isPresented: $showSettings) {
@@ -59,7 +73,6 @@ struct DashboardView: View {
             (.blurryPhotos, photoManager.blurryPhotos.count, photoManager.blurryPhotos),
             (.duplicates, photoManager.duplicates.count, photoManager.duplicates),
         ]
-        // Show categories with items first, then empty ones
         return all.sorted { $0.1 > $1.1 }
     }
 
@@ -68,6 +81,7 @@ struct DashboardView: View {
             Image(systemName: "checkmark.seal.fill")
                 .font(.system(size: 48))
                 .foregroundStyle(.green.gradient)
+                .accessibilityHidden(true)
             Text("Your library is clean!")
                 .font(.headline)
                 .foregroundStyle(.secondary)
@@ -97,5 +111,7 @@ struct ScanningView: View {
         }
         .padding()
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Scanning: \(phase.isEmpty ? "in progress" : phase). \(Int(progress * 100))% complete")
     }
 }

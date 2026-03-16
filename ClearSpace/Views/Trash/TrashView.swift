@@ -3,17 +3,20 @@ import Photos
 
 struct TrashView: View {
     @Environment(PhotoManager.self) private var photoManager
-    @Environment(SubscriptionManager.self) private var subscriptionManager
     @State private var isDeleting = false
     @State private var showError = false
     @State private var errorMessage = ""
     @State private var showConfirmation = false
-    @State private var showPaywall = false
+    @State private var showShareSheet = false
+    @State private var deletedCount = 0
+    @State private var deletedBytes: Int64 = 0
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 24) {
-                if photoManager.trashQueue.isEmpty {
+                if deletedCount > 0 && photoManager.trashQueue.isEmpty {
+                    deletionSuccessView
+                } else if photoManager.trashQueue.isEmpty {
                     emptyState
                 } else {
                     trashContent
@@ -36,6 +39,9 @@ struct TrashView: View {
             } message: {
                 Text("This will move these items to your Recently Deleted album. You can recover them within 30 days.")
             }
+            .sheet(isPresented: $showShareSheet) {
+                ShareCleanupView(itemCount: deletedCount, bytesFreed: deletedBytes)
+            }
         }
     }
 
@@ -47,6 +53,7 @@ struct TrashView: View {
             Image(systemName: "trash.slash")
                 .font(.system(size: 64))
                 .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
 
             Text("Trash is Empty")
                 .font(.title2.bold())
@@ -58,13 +65,46 @@ struct TrashView: View {
         }
     }
 
+    // MARK: - Deletion Success
+
+    private var deletionSuccessView: some View {
+        VStack(spacing: 20) {
+            Spacer()
+
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 72))
+                .foregroundStyle(.green.gradient)
+                .accessibilityHidden(true)
+
+            Text("Cleaned!")
+                .font(.title.bold())
+
+            Text("Deleted **\(deletedCount) items** and freed up **\(ByteCountFormatter.string(fromByteCount: deletedBytes, countStyle: .file))**")
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.secondary)
+
+            Button {
+                showShareSheet = true
+            } label: {
+                Label("Share Your Results", systemImage: "square.and.arrow.up")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.blue)
+            .padding(.horizontal, 40)
+
+            Spacer()
+        }
+    }
+
     // MARK: - Trash Content
 
     private var trashContent: some View {
         VStack(spacing: 20) {
             Spacer()
 
-            // Trash icon with count
             ZStack {
                 Circle()
                     .fill(.red.opacity(0.1))
@@ -74,22 +114,21 @@ struct TrashView: View {
                     .font(.system(size: 48))
                     .foregroundStyle(.red)
             }
+            .accessibilityHidden(true)
 
             Text("\(photoManager.trashQueue.count) Items")
                 .font(.title.bold())
+                .contentTransition(.numericText())
+                .accessibilityLabel("\(photoManager.trashQueue.count) items in trash")
 
             Text("Ready to be permanently deleted")
                 .foregroundStyle(.secondary)
 
             Spacer()
 
-            // THE BIG BUTTON — single batched deletion
+            // THE BIG BUTTON — single batched deletion, available to all users
             Button {
-                if subscriptionManager.isPro {
-                    showConfirmation = true
-                } else {
-                    showPaywall = true
-                }
+                showConfirmation = true
             } label: {
                 HStack(spacing: 10) {
                     if isDeleting {
@@ -108,31 +147,58 @@ struct TrashView: View {
             .tint(.red)
             .disabled(isDeleting)
             .padding(.horizontal, 24)
+            .accessibilityHint("Permanently deletes all items in trash")
 
-            // Clear trash without deleting
             Button("Remove All from Trash") {
                 photoManager.trashQueue.removeAll()
             }
             .font(.subheadline)
             .foregroundStyle(.secondary)
             .padding(.bottom, 24)
-        }
-        .sheet(isPresented: $showPaywall) {
-            PaywallView()
+            .accessibilityHint("Removes items from trash without deleting them")
         }
     }
 
     // MARK: - Deletion
 
     private func performDeletion() async {
+        let count = photoManager.trashQueue.count
+        // Estimate bytes before deletion
+        let identifiers = Array(photoManager.trashQueue)
+        let fetched = PHAsset.fetchAssets(withLocalIdentifiers: identifiers, options: nil)
+        var bytes: Int64 = 0
+        fetched.enumerateObjects { asset, _, _ in
+            bytes += PhotoManager.estimatedFileSize(for: asset)
+        }
+
         isDeleting = true
         do {
             try await photoManager.emptyTrash()
             HapticManager.emptyTrash()
+            deletedCount = count
+            deletedBytes = bytes
         } catch {
             errorMessage = error.localizedDescription
             showError = true
         }
         isDeleting = false
+    }
+}
+
+// MARK: - Share Cleanup Results
+
+struct ShareCleanupView: View {
+    let itemCount: Int
+    let bytesFreed: Int64
+
+    private var shareText: String {
+        let sizeStr = ByteCountFormatter.string(fromByteCount: bytesFreed, countStyle: .file)
+        return "I just cleaned \(itemCount) junk photos and freed up \(sizeStr) on my iPhone with ClearSpace!"
+    }
+
+    var body: some View {
+        ShareLink(item: shareText) {
+            Label("Share", systemImage: "square.and.arrow.up")
+        }
     }
 }

@@ -15,19 +15,37 @@ struct SwipeDeckView: View {
     @State private var isSwiping = false
     @State private var swipeHistory: [SwipeRecord] = []
     @State private var showPaywall = false
+    @State private var showTutorial = true
+    @State private var sortOrder: SortOrder = .newest
+    @State private var showTrashAllConfirm = false
 
-    /// Number of free swipes before paywall (free preview)
     private let freeSwipeLimit = 5
-
     private let swipeThreshold: CGFloat = 100
 
     enum SwipeDirection {
         case left, right
     }
 
+    enum SortOrder: String, CaseIterable {
+        case newest = "Newest"
+        case oldest = "Oldest"
+        case largest = "Largest"
+    }
+
     struct SwipeRecord {
         let index: Int
         let direction: SwipeDirection
+    }
+
+    private var sortedAssets: [PHAsset] {
+        switch sortOrder {
+        case .newest:
+            return assets.sorted { ($0.creationDate ?? .distantPast) > ($1.creationDate ?? .distantPast) }
+        case .oldest:
+            return assets.sorted { ($0.creationDate ?? .distantPast) < ($1.creationDate ?? .distantPast) }
+        case .largest:
+            return assets.sorted { PhotoManager.estimatedFileSize(for: $0) > PhotoManager.estimatedFileSize(for: $1) }
+        }
     }
 
     private var isFreePreviewExhausted: Bool {
@@ -39,44 +57,90 @@ struct SwipeDeckView: View {
             // Progress header with undo
             SwipeProgressHeader(
                 current: currentIndex,
-                total: assets.count,
+                total: sortedAssets.count,
                 trashCount: photoManager.trashQueue.count,
                 canUndo: !swipeHistory.isEmpty,
                 onUndo: undoLastSwipe
             )
 
-            // Free preview banner
-            if !subscriptionManager.isPro && currentIndex < freeSwipeLimit && currentIndex < assets.count {
-                HStack(spacing: 6) {
-                    Image(systemName: "gift.fill")
-                    Text("Free preview: \(freeSwipeLimit - currentIndex) swipes remaining")
+            // Sort + Trash All toolbar
+            if currentIndex < sortedAssets.count && !isFreePreviewExhausted {
+                HStack {
+                    // Sort picker
+                    Menu {
+                        ForEach(SortOrder.allCases, id: \.self) { order in
+                            Button {
+                                sortOrder = order
+                                currentIndex = 0
+                                swipeHistory.removeAll()
+                            } label: {
+                                Label(order.rawValue, systemImage: sortOrder == order ? "checkmark" : "")
+                            }
+                        }
+                    } label: {
+                        Label(sortOrder.rawValue, systemImage: "arrow.up.arrow.down")
+                            .font(.caption.bold())
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Spacer()
+
+                    // Free preview banner
+                    if !subscriptionManager.isPro && currentIndex < freeSwipeLimit {
+                        HStack(spacing: 4) {
+                            Image(systemName: "gift.fill")
+                            Text("\(freeSwipeLimit - currentIndex) free")
+                        }
+                        .font(.caption.bold())
+                        .foregroundStyle(.blue)
+                        .padding(.vertical, 4)
+                        .padding(.horizontal, 10)
+                        .background(.blue.opacity(0.1), in: Capsule())
+                    }
+
+                    Spacer()
+
+                    // Trash All button
+                    if subscriptionManager.isPro {
+                        Button {
+                            showTrashAllConfirm = true
+                        } label: {
+                            Label("Trash All", systemImage: "trash.fill")
+                                .font(.caption.bold())
+                                .foregroundStyle(.red)
+                        }
+                        .accessibilityHint("Mark all remaining items for deletion")
+                    }
                 }
-                .font(.caption.bold())
-                .foregroundStyle(.blue)
+                .padding(.horizontal, 20)
                 .padding(.vertical, 6)
-                .padding(.horizontal, 12)
-                .background(.blue.opacity(0.1), in: Capsule())
-                .padding(.bottom, 4)
             }
 
             // Card stack
             ZStack {
                 if isFreePreviewExhausted {
                     freePreviewEndView
-                } else if currentIndex < assets.count {
+                } else if currentIndex < sortedAssets.count {
                     // Next card (underneath)
-                    if currentIndex + 1 < assets.count {
-                        SwipeCardView(asset: assets[currentIndex + 1], direction: nil)
+                    if currentIndex + 1 < sortedAssets.count {
+                        SwipeCardView(asset: sortedAssets[currentIndex + 1], direction: nil)
                             .scaleEffect(0.95)
                             .opacity(0.5)
                     }
 
                     // Current card
-                    SwipeCardView(asset: assets[currentIndex], direction: dragDirection)
+                    SwipeCardView(asset: sortedAssets[currentIndex], direction: dragDirection)
                         .offset(dragOffset)
                         .rotationEffect(.degrees(Double(dragOffset.width / 20)))
                         .gesture(swipeGesture)
                         .animation(.interactiveSpring(response: 0.3), value: dragOffset)
+                        .overlay {
+                            if showTutorial && currentIndex == 0 {
+                                SwipeTutorialOverlay {
+                                    withAnimation { showTutorial = false }
+                                }
+                            }
+                        }
                 } else {
                     SwipeDoneView(trashCount: photoManager.trashQueue.count)
                 }
@@ -85,7 +149,7 @@ struct SwipeDeckView: View {
             .padding(.horizontal, 20)
 
             // Action buttons
-            if currentIndex < assets.count && !isFreePreviewExhausted {
+            if currentIndex < sortedAssets.count && !isFreePreviewExhausted {
                 SwipeActionButtons(
                     onTrash: { performSwipe(.left) },
                     onKeep: { performSwipe(.right) }
@@ -97,6 +161,17 @@ struct SwipeDeckView: View {
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showPaywall) {
             PaywallView()
+        }
+        .confirmationDialog(
+            "Trash all \(sortedAssets.count - currentIndex) remaining items?",
+            isPresented: $showTrashAllConfirm,
+            titleVisibility: .visible
+        ) {
+            Button("Trash All", role: .destructive) {
+                trashAllRemaining()
+            }
+        } message: {
+            Text("All remaining items will be added to your trash queue for batch deletion.")
         }
     }
 
@@ -111,7 +186,7 @@ struct SwipeDeckView: View {
             Text("Free Preview Complete")
                 .font(.title2.bold())
 
-            Text("You reviewed \(freeSwipeLimit) items and marked **\(photoManager.trashQueue.count)** for trash.\nUpgrade to swipe through all \(assets.count) items.")
+            Text("You reviewed \(freeSwipeLimit) items and marked **\(photoManager.trashQueue.count)** for trash.\nUpgrade to swipe through all \(sortedAssets.count) items.")
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 16)
@@ -134,6 +209,7 @@ struct SwipeDeckView: View {
     private var swipeGesture: some Gesture {
         DragGesture()
             .onChanged { value in
+                if showTutorial { showTutorial = false }
                 dragOffset = value.translation
                 if value.translation.width > 30 {
                     dragDirection = .right
@@ -172,7 +248,7 @@ struct SwipeDeckView: View {
         swipeHistory.append(SwipeRecord(index: currentIndex, direction: direction))
 
         if direction == .left {
-            photoManager.addToTrash(assets[currentIndex])
+            photoManager.addToTrash(sortedAssets[currentIndex])
             HapticManager.swipeTrash()
         } else {
             HapticManager.swipeKeep()
@@ -190,9 +266,8 @@ struct SwipeDeckView: View {
     private func undoLastSwipe() {
         guard let last = swipeHistory.popLast() else { return }
 
-        // If it was trashed, remove from trash
         if last.direction == .left {
-            photoManager.removeFromTrash(identifier: assets[last.index].localIdentifier)
+            photoManager.removeFromTrash(identifier: sortedAssets[last.index].localIdentifier)
         }
 
         withAnimation(.spring(response: 0.3)) {
@@ -202,6 +277,75 @@ struct SwipeDeckView: View {
         }
 
         HapticManager.swipeKeep()
+    }
+
+    private func trashAllRemaining() {
+        let remaining = sortedAssets.suffix(from: currentIndex)
+        for asset in remaining {
+            photoManager.addToTrash(asset)
+        }
+        currentIndex = sortedAssets.count
+        HapticManager.swipeTrash()
+    }
+}
+
+// MARK: - Swipe Tutorial Overlay
+
+struct SwipeTutorialOverlay: View {
+    let onDismiss: () -> Void
+
+    @State private var arrowOffset: CGFloat = 0
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 20)
+                .fill(.black.opacity(0.6))
+
+            VStack(spacing: 24) {
+                HStack(spacing: 40) {
+                    VStack(spacing: 8) {
+                        Image(systemName: "arrow.left")
+                            .font(.title.bold())
+                            .offset(x: -arrowOffset)
+                        Text("Trash")
+                            .font(.caption.bold())
+                    }
+                    .foregroundStyle(.red)
+
+                    VStack(spacing: 8) {
+                        Image(systemName: "arrow.right")
+                            .font(.title.bold())
+                            .offset(x: arrowOffset)
+                        Text("Keep")
+                            .font(.caption.bold())
+                    }
+                    .foregroundStyle(.green)
+                }
+
+                Text("Swipe or tap the buttons below")
+                    .font(.subheadline)
+                    .foregroundStyle(.white.opacity(0.8))
+
+                Button("Got it") {
+                    onDismiss()
+                }
+                .font(.subheadline.bold())
+                .foregroundStyle(.white)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 10)
+                .background(.white.opacity(0.2), in: Capsule())
+            }
+        }
+        .onAppear {
+            withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) {
+                arrowOffset = 10
+            }
+        }
+        .onTapGesture {
+            onDismiss()
+        }
+        .accessibilityLabel("Swipe tutorial. Swipe left to trash, right to keep.")
+        .accessibilityAddTraits(.isButton)
     }
 }
 
@@ -218,6 +362,7 @@ struct SwipeProgressHeader: View {
         VStack(spacing: 8) {
             ProgressView(value: Double(current), total: max(Double(total), 1))
                 .tint(.blue)
+                .accessibilityLabel("Progress: \(current) of \(total)")
 
             HStack {
                 Text("\(current) / \(total)")
@@ -232,12 +377,14 @@ struct SwipeProgressHeader: View {
                             .font(.caption.bold())
                             .foregroundStyle(.blue)
                     }
+                    .accessibilityHint("Undo the last swipe")
                     .padding(.trailing, 8)
                 }
 
                 Label("\(trashCount)", systemImage: "trash.fill")
                     .font(.caption.bold())
                     .foregroundStyle(.red)
+                    .accessibilityLabel("\(trashCount) items in trash")
             }
         }
         .padding(.horizontal, 20)
@@ -263,6 +410,8 @@ struct SwipeActionButtons: View {
                         .foregroundStyle(.red)
                 }
             }
+            .accessibilityLabel("Trash")
+            .accessibilityHint("Mark this photo for deletion")
 
             Button(action: onKeep) {
                 ZStack {
@@ -274,6 +423,8 @@ struct SwipeActionButtons: View {
                         .foregroundStyle(.green)
                 }
             }
+            .accessibilityLabel("Keep")
+            .accessibilityHint("Keep this photo in your library")
         }
     }
 }
@@ -288,6 +439,7 @@ struct SwipeDoneView: View {
             Image(systemName: "sparkles")
                 .font(.system(size: 64))
                 .foregroundStyle(.blue.gradient)
+                .accessibilityHidden(true)
 
             Text("All Done!")
                 .font(.title.bold())

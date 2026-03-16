@@ -59,5 +59,8 @@ struct CategoryCard: View {
         .navigationDestination(isPresented: $navigateToSwipe) {
             SwipeDeckView(category: category, assets: assets)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(category.rawValue): \(count > 0 ? "\(count) items" : "clean")")
+        .accessibilityHint(count > 0 ? "Tap to review and swipe" : "No items to review")
     }
 }

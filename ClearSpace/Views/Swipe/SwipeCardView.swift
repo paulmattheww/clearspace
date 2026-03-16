@@ -28,6 +28,7 @@ struct SwipeCardView: View {
                             .aspectRatio(contentMode: .fill)
                     } else {
                         ProgressView()
+                            .accessibilityLabel("Loading photo")
                     }
                 }
                 .clipShape(RoundedRectangle(cornerRadius: 20))
@@ -48,7 +49,7 @@ struct SwipeCardView: View {
                     )
                 }
 
-                Text("\(asset.pixelWidth) x \(asset.pixelHeight)")
+                Text("\(asset.pixelWidth)\u{00D7}\(asset.pixelHeight)")
             }
             .font(.caption2)
             .foregroundStyle(.white)
@@ -82,6 +83,20 @@ struct SwipeCardView: View {
         .task(id: asset.localIdentifier) {
             thumbnail = await photoManager.loadThumbnail(for: asset)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityDescription)
+    }
+
+    private var accessibilityDescription: String {
+        var parts: [String] = ["Photo"]
+        if let date = asset.creationDate {
+            parts.append("from \(Self.dateFormatter.string(from: date))")
+        }
+        let size = PhotoManager.estimatedFileSize(for: asset)
+        if size > 0 {
+            parts.append(ByteCountFormatter.string(fromByteCount: size, countStyle: .file))
+        }
+        return parts.joined(separator: ", ")
     }
 
     private func overlayColor(for direction: SwipeDeckView.SwipeDirection) -> Color {

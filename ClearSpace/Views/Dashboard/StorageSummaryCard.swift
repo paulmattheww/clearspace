@@ -42,6 +42,8 @@ struct StorageSummaryCard: View {
                 .fill(.ultraThinMaterial)
                 .shadow(color: .black.opacity(0.05), radius: 10, y: 5)
         )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(photoManager.totalJunkFormatted) of recoverable space found. \(photoManager.totalJunkCount) junk items. \(photoManager.trashQueue.count) in trash.")
     }
 }
 

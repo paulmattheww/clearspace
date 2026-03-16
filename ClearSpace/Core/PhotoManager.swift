@@ -16,6 +16,7 @@ final class PhotoManager {
     var isScanning = false
     var scanProgress: Double = 0
     var scanPhase: String = ""
+    var lastScanDate: Date?
 
     // MARK: - Junk Buckets
 
@@ -111,6 +112,7 @@ final class PhotoManager {
         // Validate trash queue — remove stale IDs that no longer exist in library
         validateTrashQueue()
 
+        lastScanDate = Date()
         cacheScanResults()
         isScanning = false
     }
